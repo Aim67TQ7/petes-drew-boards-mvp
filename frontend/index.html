@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pete & Drew's Boards - MVP</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .boards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .board {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .board-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .board-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .board-title.pete { color: #667eea; }
+        .board-title.drew { color: #48bb78; }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .status-badge.online {
+            background: #c6f6d5;
+            color: #2f855a;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: #f7fafc;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .tab:hover {
+            background: #edf2f7;
+        }
+
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+        }
+
+        .button.drew {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+        }
+
+        .items-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .item {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .item.drew {
+            border-left-color: #48bb78;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 8px;
+        }
+
+        .item-title {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .item-status {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .item-status.inbox { background: #fed7d7; color: #c53030; }
+        .item-status.in_progress { background: #feebc8; color: #c05621; }
+        .item-status.done { background: #c6f6d5; color: #2f855a; }
+
+        .item-description {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .item-time {
+            color: #a0aec0;
+            font-size: 0.8rem;
+            margin-top: 8px;
+        }
+
+        .message-item {
+            background: #f7fafc;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .message-sender {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .message-sender.pete { color: #667eea; }
+        .message-sender.drew { color: #48bb78; }
+
+        .message-content {
+            color: #2d3748;
+        }
+
+        .message-time {
+            color: #a0aec0;
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #718096;
+        }
+
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .success {
+            background: #c6f6d5;
+            color: #2f855a;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .boards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Pete & Drew's Boards</h1>
+            <p>Task & Message Management System</p>
+        </div>
+
+        <div class="boards">
+            <!-- Pete's Board -->
+            <div class="board">
+                <div class="board-header">
+                    <div class="board-title pete">🤖 Pete's Board</div>
+                    <div class="status-badge online">Online</div>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('pete', 'tasks')">Tasks</button>
+                    <button class="tab" onclick="switchTab('pete', 'messages')">Messages</button>
+                    <button class="tab" onclick="switchTab('pete', 'create')">Create</button>
+                </div>
+
+                <div id="pete-error" class="error"></div>
+                <div id="pete-success" class="success"></div>
+
+                <!-- Tasks Tab -->
+                <div id="pete-tasks" class="tab-content active">
+                    <div id="pete-tasks-list" class="items-list">
+                        <div class="loading">Loading tasks...</div>
+                    </div>
+                </div>
+
+                <!-- Messages Tab -->
+                <div id="pete-messages" class="tab-content">
+                    <div id="pete-messages-list" class="items-list">
+                        <div class="loading">Loading messages...</div>
+                    </div>
+                </div>
+
+                <!-- Create Tab -->
+                <div id="pete-create" class="tab-content">
+                    <div class="input-group">
+                        <label>Type</label>
+                        <div class="tabs" style="margin-bottom: 15px;">
+                            <button class="tab active" onclick="setPeteCreateType('task')">Task</button>
+                            <button class="tab" onclick="setPeteCreateType('message')">Message</button>
+                        </div>
+                    </div>
+
+                    <div id="pete-create-task">
+                        <div class="input-group">
+                            <label>Title</label>
+                            <input type="text" id="pete-task-title" placeholder="Enter task title...">
+                        </div>
+                        <div class="input-group">
+                            <label>Description</label>
+                            <textarea id="pete-task-description" placeholder="Task details..."></textarea>
+                        </div>
+                        <button class="button" onclick="createPeteTask()">Create Task</button>
+                    </div>
+
+                    <div id="pete-create-message" style="display: none;">
+                        <div class="input-group">
+                            <label>Message</label>
+                            <textarea id="pete-message-content" placeholder="Your message..."></textarea>
+                        </div>
+                        <button class="button" onclick="createPeteMessage()">Send Message</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Drew's Board -->
+            <div class="board">
+                <div class="board-header">
+                    <div class="board-title drew">🎨 Drew's Board</div>
+                    <div class="status-badge online">Online</div>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('drew', 'tasks')">Tasks</button>
+                    <button class="tab" onclick="switchTab('drew', 'messages')">Messages</button>
+                    <button class="tab" onclick="switchTab('drew', 'create')">Create</button>
+                </div>
+
+                <div id="drew-error" class="error"></div>
+                <div id="drew-success" class="success"></div>
+
+                <!-- Tasks Tab -->
+                <div id="drew-tasks" class="tab-content active">
+                    <div id="drew-tasks-list" class="items-list">
+                        <div class="loading">Loading tasks...</div>
+                    </div>
+                </div>
+
+                <!-- Messages Tab -->
+                <div id="drew-messages" class="tab-content">
+                    <div id="drew-messages-list" class="items-list">
+                        <div class="loading">Loading messages...</div>
+                    </div>
+                </div>
+
+                <!-- Create Tab -->
+                <div id="drew-create" class="tab-content">
+                    <div class="input-group">
+                        <label>Type</label>
+                        <div class="tabs" style="margin-bottom: 15px;">
+                            <button class="tab active" onclick="setDrewCreateType('task')">Task</button>
+                            <button class="tab" onclick="setDrewCreateType('message')">Message</button>
+                        </div>
+                    </div>
+
+                    <div id="drew-create-task">
+                        <div class="input-group">
+                            <label>Title</label>
+                            <input type="text" id="drew-task-title" placeholder="Enter task title...">
+                        </div>
+                        <div class="input-group">
+                            <label>Description</label>
+                            <textarea id="drew-task-description" placeholder="Task details..."></textarea>
+                        </div>
+                        <button class="button drew" onclick="createDrewTask()">Create Task</button>
+                    </div>
+
+                    <div id="drew-create-message" style="display: none;">
+                        <div class="input-group">
+                            <label>Message</label>
+                            <textarea id="drew-message-content" placeholder="Your message..."></textarea>
+                        </div>
+                        <button class="button drew" onclick="createDrewMessage()">Send Message</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/api';
+
+        // Tab switching
+        function switchTab(board, tab) {
+            // Update tab buttons
+            const boardEl = document.querySelector(`.board-title.${board}`).closest('.board');
+            boardEl.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update tab content
+            boardEl.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(`${board}-${tab}`).classList.add('active');
+
+            // Load data if needed
+            if (tab === 'tasks') loadTasks(board);
+            if (tab === 'messages') loadMessages(board);
+        }
+
+        function setPeteCreateType(type) {
+            document.querySelectorAll('#pete-create .tabs .tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('pete-create-task').style.display = type === 'task' ? 'block' : 'none';
+            document.getElementById('pete-create-message').style.display = type === 'message' ? 'block' : 'none';
+        }
+
+        function setDrewCreateType(type) {
+            document.querySelectorAll('#drew-create .tabs .tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('drew-create-task').style.display = type === 'task' ? 'block' : 'none';
+            document.getElementById('drew-create-message').style.display = type === 'message' ? 'block' : 'none';
+        }
+
+        // Load tasks
+        async function loadTasks(board) {
+            const listEl = document.getElementById(`${board}-tasks-list`);
+            listEl.innerHTML = '<div class="loading">Loading tasks...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/${board}/tasks`);
+                const tasks = await response.json();
+
+                if (tasks.length === 0) {
+                    listEl.innerHTML = '<div style="text-align: center; padding: 20px; color: #a0aec0;">No tasks yet</div>';
+                    return;
+                }
+
+                listEl.innerHTML = tasks.map(task => `
+                    <div class="item ${board}">
+                        <div class="item-header">
+                            <div class="item-title">${task.title || 'Untitled'}</div>
+                            <div class="item-status ${task.status}">${task.status}</div>
+                        </div>
+                        ${task.description ? `<div class="item-description">${task.description}</div>` : ''}
+                        <div class="item-time">${formatTime(task.created_at)}</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                showError(board, `Failed to load tasks: ${error.message}`);
+            }
+        }
+
+        // Load messages
+        async function loadMessages(board) {
+            const listEl = document.getElementById(`${board}-messages-list`);
+            listEl.innerHTML = '<div class="loading">Loading messages...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/${board}/messages`);
+                const messages = await response.json();
+
+                if (messages.length === 0) {
+                    listEl.innerHTML = '<div style="text-align: center; padding: 20px; color: #a0aec0;">No messages yet</div>';
+                    return;
+                }
+
+                listEl.innerHTML = messages.map(msg => `
+                    <div class="message-item">
+                        <div class="message-sender ${board}">${msg.sender}</div>
+                        <div class="message-content">${msg.content}</div>
+                        <div class="message-time">${formatTime(msg.created_at)}</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                showError(board, `Failed to load messages: ${error.message}`);
+            }
+        }
+
+        // Create task
+        async function createPeteTask() {
+            const title = document.getElementById('pete-task-title').value.trim();
+            const description = document.getElementById('pete-task-description').value.trim();
+
+            if (!title) {
+                showError('pete', 'Please enter a title');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/pete/tasks`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, description, status: 'inbox' })
+                });
+
+                if (!response.ok) throw new Error('Failed to create task');
+
+                document.getElementById('pete-task-title').value = '';
+                document.getElementById('pete-task-description').value = '';
+                showSuccess('pete', 'Task created successfully!');
+                switchTab('pete', 'tasks');
+            } catch (error) {
+                showError('pete', error.message);
+            }
+        }
+
+        async function createDrewTask() {
+            const title = document.getElementById('drew-task-title').value.trim();
+            const description = document.getElementById('drew-task-description').value.trim();
+
+            if (!title) {
+                showError('drew', 'Please enter a title');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/drew/tasks`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, description, status: 'inbox' })
+                });
+
+                if (!response.ok) throw new Error('Failed to create task');
+
+                document.getElementById('drew-task-title').value = '';
+                document.getElementById('drew-task-description').value = '';
+                showSuccess('drew', 'Task created successfully!');
+                switchTab('drew', 'tasks');
+            } catch (error) {
+                showError('drew', error.message);
+            }
+        }
+
+        // Create message
+        async function createPeteMessage() {
+            const content = document.getElementById('pete-message-content').value.trim();
+
+            if (!content) {
+                showError('pete', 'Please enter a message');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/pete/messages`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content, sender: 'user' })
+                });
+
+                if (!response.ok) throw new Error('Failed to send message');
+
+                document.getElementById('pete-message-content').value = '';
+                showSuccess('pete', 'Message sent successfully!');
+                switchTab('pete', 'messages');
+            } catch (error) {
+                showError('pete', error.message);
+            }
+        }
+
+        async function createDrewMessage() {
+            const content = document.getElementById('drew-message-content').value.trim();
+
+            if (!content) {
+                showError('drew', 'Please enter a message');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/drew/messages`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content, sender: 'user' })
+                });
+
+                if (!response.ok) throw new Error('Failed to send message');
+
+                document.getElementById('drew-message-content').value = '';
+                showSuccess('drew', 'Message sent successfully!');
+                switchTab('drew', 'messages');
+            } catch (error) {
+                showError('drew', error.message);
+            }
+        }
+
+        // Utility functions
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+
+            if (minutes < 1) return 'just now';
+            if (minutes < 60) return `${minutes}m ago`;
+            if (hours < 24) return `${hours}h ago`;
+            return `${days}d ago`;
+        }
+
+        function showError(board, message) {
+            const errorEl = document.getElementById(`${board}-error`);
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+            setTimeout(() => errorEl.style.display = 'none', 5000);
+        }
+
+        function showSuccess(board, message) {
+            const successEl = document.getElementById(`${board}-success`);
+            successEl.textContent = message;
+            successEl.style.display = 'block';
+            setTimeout(() => successEl.style.display = 'none', 3000);
+        }
+
+        // Initial load
+        loadTasks('pete');
+        loadTasks('drew');
+    </script>
+</body>
+</html>
