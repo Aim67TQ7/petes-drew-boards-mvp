@@ -2,18 +2,19 @@
 
 **Audited:** 2026-02-26
 **Bucket:** [SALVAGE]
+**Status:** Retired
 
 ## What This Was
-Pete agent ecosystem component
+Pete & Drew Boards — collaborative task and message board
 
 ## Job To Be Done
-Task/project management
+Kanban-style task board with messaging
 
 ## Agent Replacement
 N/A
 
 ## What To Extract
-Pete agent patterns
+Pete agent patterns, routing logic
 
 ## Claude's Notes
-- Salvage value identified: Pete agent patterns
+- Salvage value: Pete agent patterns, routing logic
